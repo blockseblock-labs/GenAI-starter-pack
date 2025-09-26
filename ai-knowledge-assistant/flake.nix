@@ -1,40 +1,28 @@
 {
-  description = "AI Knowledge Assistant Next.js + LangChain + Ollama";
+  description = "AI Email Assistant - Next.js + Tailwind + Ollama dev environment";
 
   inputs = {
-    xnode-manager.url = "github:Openmesh-Network/xnode-manager/dev";
-    nextjs-ollama-template.url = "path:.."; # replace with local path if needed
-    nixpkgs.follows = "xnode-manager/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  nixConfig = {
-    extra-substituters = [
-      "https://openxai.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "openxai.cachix.org-1:3evd2khRVc/2NiGwVmypAF4VAklFmOpMuNs1K28bMQE="
-    ];
-  };
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+      in {
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            nodejs_20
+            ollama
+          ];
 
-  outputs = inputs: {
-    nixosConfigurations.container = inputs.nixpkgs.lib.nixosSystem {
-      specialArgs = {
-        inherit inputs;
-      };
-      modules = [
-        inputs.xnode-manager.nixosModules.container
-        {
-          services.xnode-container.xnode-config = {
-            host-platform = ./xnode-config/host-platform;
-            state-version = ./xnode-config/state-version;
-            hostname = ./xnode-config/hostname;
-          };
-        }
-        inputs.nextjs-ollama-template.nixosModules.default
-        {
-          services.nextjs-ollama-template.enable = true;
-        }
-      ];
-    };
-  };
+          shellHook = ''
+            export NODE_ENV=development
+            echo " Dev shell ready!"
+            echo " Run: npm install && npm run dev"
+            echo " Make sure ollama is running: ollama serve"
+          '';
+        };
+      });
 }

@@ -36,7 +36,7 @@
           stable-diffusion-app = package;
           
           dockerImage = pkgs.dockerTools.buildLayeredImage {
-            name = "diffusionx";
+            name = "stable-diffusion";
             tag = "latest";
             contents = [ package pkgs.bash pkgs.coreutils ];
             config = {
@@ -63,7 +63,7 @@
               git
             ];
             shellHook = ''
-              echo "🎨 DiffusionX Development Environment"
+              echo " DiffusionX Development Environment"
               echo "Node.js: $(node --version)"
               echo "npm: $(npm --version)"
               echo ""
